@@ -12,385 +12,411 @@ from streamlit.components.v1 import html
 
 st.set_page_config(page_title="TeaGuard", page_icon="🌿", layout="wide")
 
-# ---- Cool CSS ----
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
-    
     * { font-family: 'Poppins', sans-serif; }
-    
-    .main { background: #0a0a0a; }
-    
     .stApp {
         background: linear-gradient(135deg, #0d1b0f 0%, #1a2e1c 50%, #0d1b0f 100%);
         color: white;
     }
-    
     h1, h2, h3 { color: #4ade80 !important; }
-    
     .stTabs [data-baseweb="tab-list"] {
         background: rgba(255,255,255,0.05);
-        border-radius: 15px;
-        padding: 5px;
-        gap: 5px;
+        border-radius: 15px; padding: 5px; gap: 5px;
     }
-    
     .stTabs [data-baseweb="tab"] {
-        background: transparent;
-        color: #9ca3af;
-        border-radius: 10px;
-        font-weight: 600;
-        padding: 10px 20px;
+        background: transparent; color: #9ca3af;
+        border-radius: 10px; font-weight: 600; padding: 10px 20px;
     }
-    
     .stTabs [aria-selected="true"] {
         background: linear-gradient(135deg, #16a34a, #15803d) !important;
         color: white !important;
     }
-    
     .stTextInput input {
         background: rgba(255,255,255,0.08) !important;
         border: 1px solid rgba(74,222,128,0.3) !important;
-        border-radius: 10px !important;
-        color: white !important;
-        padding: 12px !important;
+        border-radius: 10px !important; color: white !important;
     }
-    
-    .stTextInput input:focus {
-        border-color: #4ade80 !important;
-        box-shadow: 0 0 0 2px rgba(74,222,128,0.2) !important;
-    }
-    
     .stButton button {
         background: linear-gradient(135deg, #16a34a, #15803d) !important;
-        color: white !important;
-        border: none !important;
-        border-radius: 12px !important;
-        padding: 12px 30px !important;
-        font-weight: 600 !important;
-        font-size: 16px !important;
+        color: white !important; border: none !important;
+        border-radius: 12px !important; font-weight: 600 !important;
         width: 100% !important;
-        transition: all 0.3s !important;
     }
-    
-    .stButton button:hover {
-        transform: translateY(-2px) !important;
-        box-shadow: 0 8px 25px rgba(22,163,74,0.4) !important;
-    }
-    
-    .stMetric {
-        background: rgba(255,255,255,0.05) !important;
-        border: 1px solid rgba(74,222,128,0.2) !important;
-        border-radius: 15px !important;
-        padding: 20px !important;
-    }
-    
-    .stMetric label { color: #9ca3af !important; }
-    .stMetric [data-testid="metric-container"] { color: #4ade80 !important; }
-    
-    div[data-testid="stAlert"] {
-        border-radius: 12px !important;
-        border: none !important;
-    }
-    
-    .stDataFrame {
-        border-radius: 12px !important;
-        overflow: hidden !important;
-    }
-    
-    .stSlider [data-baseweb="slider"] {
-        color: #4ade80 !important;
-    }
-    
-    /* Hide streamlit branding */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
 </style>
 """, unsafe_allow_html=True)
 
-# ---- Hero Header ----
 st.markdown("""
-<div style="
-    text-align: center;
-    padding: 40px 20px;
+<div style="text-align:center; padding:30px 20px;
     background: linear-gradient(135deg, rgba(22,163,74,0.15), rgba(21,128,61,0.1));
-    border-radius: 20px;
-    border: 1px solid rgba(74,222,128,0.2);
-    margin-bottom: 30px;
-">
-    <div style="font-size: 60px; margin-bottom: 10px;">🌿</div>
-    <h1 style="font-size: 42px; font-weight: 700; color: #4ade80; margin: 0;">TeaGuard</h1>
-    <p style="color: #9ca3af; font-size: 18px; margin-top: 10px;">
-        AI-Powered Field Verification System
+    border-radius: 20px; border: 1px solid rgba(74,222,128,0.2); margin-bottom: 30px;">
+    <div style="font-size:50px;">🌿</div>
+    <h1 style="font-size:38px; font-weight:700; color:#4ade80; margin:0;">TeaGuard</h1>
+    <p style="color:#9ca3af; font-size:16px; margin-top:8px;">
+        AI-Powered Tea Garden Management System
     </p>
-    <div style="display: flex; justify-content: center; gap: 20px; margin-top: 20px; flex-wrap: wrap;">
-        <span style="background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.3); 
-                     padding: 6px 16px; border-radius: 20px; color: #4ade80; font-size: 14px;">
-            📍 GPS Verify
-        </span>
-        <span style="background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.3); 
-                     padding: 6px 16px; border-radius: 20px; color: #4ade80; font-size: 14px;">
-            👤 Face Detection
-        </span>
-        <span style="background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.3); 
-                     padding: 6px 16px; border-radius: 20px; color: #4ade80; font-size: 14px;">
-            🛡️ Fake Photo Alert
-        </span>
-    </div>
 </div>
 """, unsafe_allow_html=True)
 
-DIVISIONS_FILE = "divisions.json"
-HISTORY_FILE = "history.json"
+# ---- Files ----
+GARDENS_FILE = "gardens.json"
+WORKERS_FILE = "workers.json"
+ATTENDANCE_FILE = "attendance.json"
 
-def load_json(file):
+def load_json(file, default):
     if os.path.exists(file):
         with open(file, "r") as f:
             return json.load(f)
-    return {} if file == DIVISIONS_FILE else []
+    return default
 
 def save_json(file, data):
     with open(file, "w") as f:
         json.dump(data, f)
 
-if "divisions" not in st.session_state:
-    st.session_state.divisions = load_json(DIVISIONS_FILE)
-if "history" not in st.session_state:
-    st.session_state.history = load_json(HISTORY_FILE)
+if "gardens" not in st.session_state:
+    st.session_state.gardens = load_json(GARDENS_FILE, {})
+if "workers" not in st.session_state:
+    st.session_state.workers = load_json(WORKERS_FILE, {})
+if "attendance" not in st.session_state:
+    st.session_state.attendance = load_json(ATTENDANCE_FILE, [])
 
-tab1, tab2, tab3 = st.tabs(["📸 Photo Verify", "🗺️ Division Setup", "📊 Dashboard"])
+tab1, tab2, tab3, tab4 = st.tabs([
+    "📸 Attendance", "🏡 Garden Setup", "👷 Workers", "📊 Dashboard"
+])
 
+# ================================================
+# TAB 2 - Garden Setup
+# ================================================
 with tab2:
-    st.markdown("### 🗺️ Field Location Set Karo")
+    st.markdown("### 🏡 Garden & Field Setup")
     st.info("Ek baar set karo — hamesha save rahega!")
 
-    div_name = st.text_input("Division naam (jaise: Block A, Field 1):")
+    garden_name = st.text_input("Garden ka naam:", key="gname")
+
+    st.markdown("#### Field/Division add karo:")
     col1, col2 = st.columns(2)
     with col1:
+        field_name = st.text_input("Field naam (jaise: Block A):", key="fname")
         clat = st.number_input("Center Latitude:", value=31.50, format="%.6f")
     with col2:
+        field_number = st.text_input("Field number:", key="fnum")
         clon = st.number_input("Center Longitude:", value=74.85, format="%.6f")
     radius = st.slider("Field size (km):", 0.1, 5.0, 0.5, 0.1)
 
-    if st.button("💾 Division Save Karo"):
-        if div_name:
+    if st.button("💾 Garden & Field Save Karo"):
+        if garden_name and field_name:
+            if garden_name not in st.session_state.gardens:
+                st.session_state.gardens[garden_name] = {}
             offset = radius / 111
-            st.session_state.divisions[div_name] = {
+            field_key = f"{field_name} ({field_number})" if field_number else field_name
+            st.session_state.gardens[garden_name][field_key] = {
                 "lat_min": round(clat - offset, 6),
                 "lat_max": round(clat + offset, 6),
                 "lon_min": round(clon - offset, 6),
                 "lon_max": round(clon + offset, 6),
             }
-            save_json(DIVISIONS_FILE, st.session_state.divisions)
-            st.success(f"✅ '{div_name}' permanently save ho gaya!")
+            save_json(GARDENS_FILE, st.session_state.gardens)
+            st.success(f"✅ {garden_name} — {field_key} save ho gaya!")
 
-    if st.session_state.divisions:
-        st.markdown("### Saved Divisions:")
-        for name, b in st.session_state.divisions.items():
+    if st.session_state.gardens:
+        st.markdown("### Saved Gardens & Fields:")
+        for gname, fields in st.session_state.gardens.items():
             st.markdown(f"""
-            <div style="background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.2);
-                        border-radius: 10px; padding: 12px 16px; margin: 8px 0;">
-                <b style="color: #4ade80;">📍 {name}</b><br>
-                <span style="color: #9ca3af; font-size: 13px;">
-                    Lat: {b['lat_min']} → {b['lat_max']} | 
-                    Lon: {b['lon_min']} → {b['lon_max']}
-                </span>
+            <div style="background:rgba(74,222,128,0.08); border:1px solid rgba(74,222,128,0.2);
+                border-radius:12px; padding:16px; margin:8px 0;">
+                <b style="color:#4ade80; font-size:16px;">🏡 {gname}</b>
             </div>
             """, unsafe_allow_html=True)
+            for fname, bounds in fields.items():
+                st.markdown(f"""
+                <div style="background:rgba(255,255,255,0.03); border-left:3px solid #4ade80;
+                    border-radius:8px; padding:10px 16px; margin:4px 0 4px 20px;">
+                    <span style="color:white;">📍 {fname}</span><br>
+                    <span style="color:#9ca3af; font-size:12px;">
+                        Lat: {bounds['lat_min']} → {bounds['lat_max']} | 
+                        Lon: {bounds['lon_min']} → {bounds['lon_max']}
+                    </span>
+                </div>
+                """, unsafe_allow_html=True)
 
-with tab1:
-    st.markdown("### 📸 Worker Verification")
+# ================================================
+# TAB 3 - Workers Register
+# ================================================
+with tab3:
+    st.markdown("### 👷 Workers Register Karo")
+    st.info("Pehle saare workers ka data daalo — ek baar kaam!")
 
-    if not st.session_state.divisions:
-        st.warning("⚠️ Pehle Division Setup mein apni field ki location set karo!")
-    else:
-        worker = st.text_input("👤 Worker ka naam:")
+    col1, col2 = st.columns(2)
+    with col1:
+        w_id = st.text_input("Worker ID (jaise: W001):")
+        w_name = st.text_input("Worker ka naam:")
+    with col2:
+        w_garden = st.selectbox(
+            "Garden:",
+            options=list(st.session_state.gardens.keys()) if st.session_state.gardens else ["Pehle garden set karo"]
+        )
+        if st.session_state.gardens and w_garden in st.session_state.gardens:
+            w_field = st.selectbox(
+                "Field/Division:",
+                options=list(st.session_state.gardens[w_garden].keys())
+            )
+        else:
+            w_field = ""
 
-        st.markdown("### 📍 Automatic Location")
-        gps_html = """
-        <div style="padding: 10px 0;">
-            <button onclick="getLocation()" style="
-                background: linear-gradient(135deg, #16a34a, #15803d);
-                color: white; padding: 15px 30px; font-size: 18px;
-                border: none; border-radius: 12px; cursor: pointer;
-                width: 100%; font-family: Poppins, sans-serif;
-                font-weight: 600; letter-spacing: 0.5px;
-                box-shadow: 0 4px 15px rgba(22,163,74,0.3);
-            ">
-                📍 Meri Location Automatic Lo
-            </button>
-            <div id="status" style="margin-top: 12px; font-size: 15px; 
-                color: #9ca3af; text-align: center; font-family: Poppins, sans-serif;">
-                Button dabao — location automatic milegi!
-            </div>
-        </div>
-        <script>
-        function getLocation() {
-            document.getElementById('status').innerHTML = '⏳ Location dhundh raha hoon...';
-            document.getElementById('status').style.color = 'orange';
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    function(pos) {
-                        var lat = pos.coords.latitude.toFixed(6);
-                        var lon = pos.coords.longitude.toFixed(6);
-                        document.getElementById('status').innerHTML = 
-                            '✅ Location mili! Lat: ' + lat + ' | Lon: ' + lon;
-                        document.getElementById('status').style.color = '#4ade80';
-                    },
-                    function(err) {
-                        document.getElementById('status').innerHTML = 
-                            '❌ Location nahi mili — phone mein location ON karo!';
-                        document.getElementById('status').style.color = 'red';
-                    },
-                    {enableHighAccuracy: true, timeout: 10000}
-                );
+    if st.button("✅ Worker Register Karo"):
+        if w_id and w_name and w_garden:
+            st.session_state.workers[w_id] = {
+                "naam": w_name,
+                "garden": w_garden,
+                "field": w_field,
             }
-        }
-        </script>
-        """
-        html(gps_html, height=120)
+            save_json(WORKERS_FILE, st.session_state.workers)
+            st.success(f"✅ {w_name} (ID: {w_id}) register ho gaya!")
 
-        st.markdown("**Ya manually daalo:**")
+    if st.session_state.workers:
+        st.markdown("### Registered Workers:")
+        df_w = pd.DataFrame([
+            {"ID": wid, "Naam": d["naam"], "Garden": d["garden"], "Field": d["field"]}
+            for wid, d in st.session_state.workers.items()
+        ])
+        st.dataframe(df_w, use_container_width=True)
+
+        if st.button("🗑️ Kisi Worker Ko Hatao"):
+            del_id = st.text_input("Worker ID likho jo hatana hai:")
+            if del_id and del_id in st.session_state.workers:
+                del st.session_state.workers[del_id]
+                save_json(WORKERS_FILE, st.session_state.workers)
+                st.success("Worker hata diya!")
+
+# ================================================
+# TAB 1 - Daily Attendance
+# ================================================
+with tab1:
+    st.markdown("### 📸 Daily Attendance")
+
+    if not st.session_state.gardens:
+        st.warning("⚠️ Pehle Garden Setup mein garden aur fields set karo!")
+    elif not st.session_state.workers:
+        st.warning("⚠️ Pehle Workers tab mein workers register karo!")
+    else:
+        worker_id = st.text_input("🪪 Apni Worker ID daalo:")
+
+        worker_info = None
+        if worker_id and worker_id in st.session_state.workers:
+            worker_info = st.session_state.workers[worker_id]
+            st.markdown(f"""
+            <div style="background:rgba(74,222,128,0.1); border:1px solid rgba(74,222,128,0.3);
+                border-radius:12px; padding:16px; margin:10px 0;">
+                <b style="color:#4ade80;">✅ Worker Mila!</b><br>
+                <span style="color:white;">👤 {worker_info['naam']}</span><br>
+                <span style="color:#9ca3af;">🏡 {worker_info['garden']} — 📍 {worker_info['field']}</span>
+            </div>
+            """, unsafe_allow_html=True)
+        elif worker_id:
+            st.error("❌ Worker ID nahi mila — sahi ID daalo!")
+
+        st.markdown("### 📍 Location")
         col1, col2 = st.columns(2)
         with col1:
-            manual_lat = st.number_input("Latitude:", value=0.0, format="%.6f", key="mlat")
+            lat_input = st.number_input("Latitude (Google Maps se):", value=0.0, format="%.6f", key="alat")
         with col2:
-            manual_lon = st.number_input("Longitude:", value=0.0, format="%.6f", key="mlon")
+            lon_input = st.number_input("Longitude (Google Maps se):", value=0.0, format="%.6f", key="alon")
 
-        st.markdown("### 📸 Abhi Camera se Photo Lo")
-        st.warning("⚠️ Sirf camera se photo accept hogi!")
-        camera_photo = st.camera_input("📷 Camera se photo lo")
+        st.markdown("### 📸 Live Photo Lo")
+        st.warning("⚠️ Sirf camera se photo lo — gallery nahi chalegi!")
+        camera_photo = st.camera_input("📷 Abhi photo lo")
 
-        if camera_photo and worker and manual_lat != 0.0:
+        if camera_photo and worker_info and lat_input != 0.0:
             img = Image.open(camera_photo)
 
+            # Face detection
             arr = np.array(img.convert("RGB"))
             gray = cv2.cvtColor(cv2.cvtColor(arr, cv2.COLOR_RGB2BGR), cv2.COLOR_BGR2GRAY)
             fc = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
             faces = fc.detectMultiScale(gray, 1.1, 5)
             face_found = len(faces) > 0
+
+            # Fake detection
             blur_score = cv2.Laplacian(gray, cv2.CV_64F).var()
             is_fake = blur_score < 30
 
-            lat = manual_lat
-            lon = manual_lon
-            division = None
-            for name, b in st.session_state.divisions.items():
-                if b["lat_min"] <= lat <= b["lat_max"] and b["lon_min"] <= lon <= b["lon_max"]:
-                    division = name
+            # Location check
+            lat = lat_input
+            lon = lon_input
+            garden = worker_info["garden"]
+            expected_field = worker_info["field"]
+            field_bounds = st.session_state.gardens[garden].get(expected_field, {})
+
+            location_ok = False
+            if field_bounds:
+                location_ok = (
+                    field_bounds["lat_min"] <= lat <= field_bounds["lat_max"] and
+                    field_bounds["lon_min"] <= lon <= field_bounds["lon_max"]
+                )
 
             now = datetime.datetime.now()
 
+            # Results
             st.markdown("---")
             st.markdown("### Verification Results")
 
             c1, c2, c3 = st.columns(3)
             with c1:
                 st.markdown(f"""
-                <div style="background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.3);
-                            border-radius: 12px; padding: 20px; text-align: center;">
-                    <div style="font-size: 30px;">⏰</div>
-                    <div style="color: #4ade80; font-weight: 600; margin: 8px 0;">Time</div>
-                    <div style="color: white; font-size: 13px;">{now.strftime('%d %b %Y')}</div>
-                    <div style="color: #4ade80; font-weight: 600;">{now.strftime('%I:%M %p')}</div>
+                <div style="background:rgba(74,222,128,0.1); border:1px solid rgba(74,222,128,0.3);
+                    border-radius:12px; padding:20px; text-align:center;">
+                    <div style="font-size:28px;">⏰</div>
+                    <div style="color:#4ade80; font-weight:600;">Time</div>
+                    <div style="color:white; font-size:13px;">{now.strftime('%d %b %Y')}</div>
+                    <div style="color:#4ade80; font-weight:600;">{now.strftime('%I:%M %p')}</div>
                 </div>
                 """, unsafe_allow_html=True)
             with c2:
-                face_color = "#4ade80" if face_found and not is_fake else "#ef4444"
-                face_icon = "✅" if face_found and not is_fake else "❌"
-                face_text = "Face Mila!" if face_found and not is_fake else ("Fake Photo!" if is_fake else "Face Nahi Mila!")
+                fc_color = "#4ade80" if face_found and not is_fake else "#ef4444"
+                fc_icon = "✅" if face_found and not is_fake else "❌"
+                fc_text = "Face Mila!" if face_found and not is_fake else ("Fake Photo!" if is_fake else "Face Nahi Mila!")
                 st.markdown(f"""
-                <div style="background: rgba(255,255,255,0.05); border: 1px solid {face_color}40;
-                            border-radius: 12px; padding: 20px; text-align: center;">
-                    <div style="font-size: 30px;">{face_icon}</div>
-                    <div style="color: {face_color}; font-weight: 600; margin: 8px 0;">Face Check</div>
-                    <div style="color: white; font-size: 13px;">{face_text}</div>
+                <div style="background:rgba(255,255,255,0.05); border:1px solid {fc_color}40;
+                    border-radius:12px; padding:20px; text-align:center;">
+                    <div style="font-size:28px;">{fc_icon}</div>
+                    <div style="color:{fc_color}; font-weight:600;">Face Check</div>
+                    <div style="color:white; font-size:13px;">{fc_text}</div>
                 </div>
                 """, unsafe_allow_html=True)
             with c3:
-                loc_color = "#4ade80" if division else "#ef4444"
-                loc_icon = "✅" if division else "❌"
-                loc_text = division if division else "Division Se Bahar!"
+                lc_color = "#4ade80" if location_ok else "#ef4444"
+                lc_icon = "✅" if location_ok else "❌"
+                lc_text = expected_field if location_ok else "Galat Location!"
                 st.markdown(f"""
-                <div style="background: rgba(255,255,255,0.05); border: 1px solid {loc_color}40;
-                            border-radius: 12px; padding: 20px; text-align: center;">
-                    <div style="font-size: 30px;">{loc_icon}</div>
-                    <div style="color: {loc_color}; font-weight: 600; margin: 8px 0;">Location</div>
-                    <div style="color: white; font-size: 13px;">{loc_text}</div>
+                <div style="background:rgba(255,255,255,0.05); border:1px solid {lc_color}40;
+                    border-radius:12px; padding:20px; text-align:center;">
+                    <div style="font-size:28px;">{lc_icon}</div>
+                    <div style="color:{lc_color}; font-weight:600;">Location</div>
+                    <div style="color:white; font-size:13px;">{lc_text}</div>
                 </div>
                 """, unsafe_allow_html=True)
 
             st.markdown("<br>", unsafe_allow_html=True)
 
-            if face_found and division and not is_fake:
-                status = "Verified"
+            if face_found and location_ok and not is_fake:
+                status = "Present"
                 st.markdown("""
-                <div style="background: linear-gradient(135deg, rgba(22,163,74,0.2), rgba(21,128,61,0.1));
-                            border: 2px solid #4ade80; border-radius: 15px; padding: 25px; text-align: center;">
-                    <div style="font-size: 50px;">✅</div>
-                    <div style="color: #4ade80; font-size: 24px; font-weight: 700;">VERIFIED!</div>
-                    <div style="color: #9ca3af; margin-top: 8px;">Worker sahi jagah tha — photo authentic hai</div>
+                <div style="background:linear-gradient(135deg, rgba(22,163,74,0.2), rgba(21,128,61,0.1));
+                    border:2px solid #4ade80; border-radius:15px; padding:25px; text-align:center;">
+                    <div style="font-size:50px;">✅</div>
+                    <div style="color:#4ade80; font-size:24px; font-weight:700;">PRESENT!</div>
+                    <div style="color:#9ca3af; margin-top:8px;">Attendance record ho gayi!</div>
+                </div>
+                """, unsafe_allow_html=True)
+            elif is_fake:
+                status = "Fake Photo"
+                st.markdown("""
+                <div style="background:linear-gradient(135deg, rgba(239,68,68,0.2), rgba(185,28,28,0.1));
+                    border:2px solid #ef4444; border-radius:15px; padding:25px; text-align:center;">
+                    <div style="font-size:50px;">🚨</div>
+                    <div style="color:#ef4444; font-size:24px; font-weight:700;">FAKE PHOTO!</div>
+                    <div style="color:#9ca3af; margin-top:8px;">Camera se live photo lo!</div>
                 </div>
                 """, unsafe_allow_html=True)
             else:
-                status = "Failed-Fake" if is_fake else "Failed"
-                reason = "Fake photo detect hui!" if is_fake else "Verification fail hua!"
-                st.markdown(f"""
-                <div style="background: linear-gradient(135deg, rgba(239,68,68,0.2), rgba(185,28,28,0.1));
-                            border: 2px solid #ef4444; border-radius: 15px; padding: 25px; text-align: center;">
-                    <div style="font-size: 50px;">❌</div>
-                    <div style="color: #ef4444; font-size: 24px; font-weight: 700;">FAILED!</div>
-                    <div style="color: #9ca3af; margin-top: 8px;">{reason}</div>
+                status = "Absent/Failed"
+                st.markdown("""
+                <div style="background:linear-gradient(135deg, rgba(239,68,68,0.2), rgba(185,28,28,0.1));
+                    border:2px solid #ef4444; border-radius:15px; padding:25px; text-align:center;">
+                    <div style="font-size:50px;">❌</div>
+                    <div style="color:#ef4444; font-size:24px; font-weight:700;">FAILED!</div>
+                    <div style="color:#9ca3af; margin-top:8px;">Location ya face verify nahi hua!</div>
                 </div>
                 """, unsafe_allow_html=True)
 
+            # Map
             if lat and lon:
-                st.markdown("<br>", unsafe_allow_html=True)
-                m = folium.Map(location=[lat, lon], zoom_start=14)
+                m = folium.Map(location=[lat, lon], zoom_start=15)
                 folium.Marker(
                     [lat, lon],
-                    icon=folium.Icon(color="green" if status == "Verified" else "red")
+                    popup=f"{worker_info['naam']} — {status}",
+                    icon=folium.Icon(color="green" if status == "Present" else "red")
                 ).add_to(m)
-                for n, b in st.session_state.divisions.items():
+                if field_bounds:
                     folium.Rectangle(
-                        [[b["lat_min"], b["lon_min"]], [b["lat_max"], b["lon_max"]]],
-                        color="#4ade80", fill=True, fill_opacity=0.15
+                        [[field_bounds["lat_min"], field_bounds["lon_min"]],
+                         [field_bounds["lat_max"], field_bounds["lon_max"]]],
+                        color="#4ade80", fill=True, fill_opacity=0.2
                     ).add_to(m)
                 st_folium(m, width=700, height=350)
 
+            # Save attendance
             record = {
-                "Worker": worker,
-                "Time": now.strftime('%d %b %Y, %I:%M %p'),
-                "Lat": lat, "Lon": lon,
-                "Division": division or "Outside",
-                "Face": "Found" if face_found else "Not Found",
-                "Fake": "Yes" if is_fake else "No",
+                "Date": now.strftime('%d %b %Y'),
+                "Time": now.strftime('%I:%M %p'),
+                "Worker ID": worker_id,
+                "Naam": worker_info["naam"],
+                "Garden": worker_info["garden"],
+                "Field": worker_info["field"],
+                "Lat": lat,
+                "Lon": lon,
+                "Face": "✅" if face_found else "❌",
+                "Location": "✅" if location_ok else "❌",
                 "Status": status
             }
-            st.session_state.history.append(record)
-            save_json(HISTORY_FILE, st.session_state.history)
-            st.success("✅ Record save ho gaya!")
+            st.session_state.attendance.append(record)
+            save_json(ATTENDANCE_FILE, st.session_state.attendance)
+            st.success("✅ Attendance save ho gayi!")
 
-with tab3:
+# ================================================
+# TAB 4 - Manager Dashboard
+# ================================================
+with tab4:
     st.markdown("### 📊 Manager Dashboard")
-    if not st.session_state.history:
-        st.info("Koi record nahi abhi — pehle photo verify karo")
+
+    if not st.session_state.attendance:
+        st.info("Koi attendance record nahi abhi")
     else:
-        df = pd.DataFrame(st.session_state.history)
-        c1, c2, c3 = st.columns(3)
-        c1.metric("📊 Total", len(df))
-        c2.metric("✅ Verified", len(df[df["Status"] == "Verified"]))
-        c3.metric("❌ Failed", len(df[df["Status"] != "Verified"]))
-        st.markdown("<br>", unsafe_allow_html=True)
+        df = pd.DataFrame(st.session_state.attendance)
+
+        # Today filter
+        today = datetime.datetime.now().strftime('%d %b %Y')
+        df_today = df[df["Date"] == today]
+
+        st.markdown(f"#### Aaj ki Attendance — {today}")
+        c1, c2, c3, c4 = st.columns(4)
+        c1.metric("📊 Total", len(df_today))
+        c2.metric("✅ Present", len(df_today[df_today["Status"] == "Present"]))
+        c3.metric("❌ Absent/Failed", len(df_today[df_today["Status"] == "Absent/Failed"]))
+        c4.metric("🚨 Fake", len(df_today[df_today["Status"] == "Fake Photo"]))
+
+        st.markdown("---")
+        st.markdown("#### Aaj ki detail:")
+        if len(df_today) > 0:
+            st.dataframe(df_today, use_container_width=True)
+        else:
+            st.info("Aaj koi attendance nahi")
+
+        st.markdown("---")
+        st.markdown("#### Poori history:")
         st.dataframe(df, use_container_width=True)
-        st.download_button(
-            "📥 CSV Download Karo",
-            df.to_csv(index=False),
-            "teaguard_report.csv",
-            "text/csv"
-        )
-        if st.button("🗑️ History Clear"):
-            st.session_state.history = []
-            save_json(HISTORY_FILE, [])
+
+        col1, col2 = st.columns(2)
+        with col1:
+            st.download_button(
+                "📥 Aaj ki Report Download",
+                df_today.to_csv(index=False) if len(df_today) > 0 else df.to_csv(index=False),
+                f"attendance_{today}.csv",
+                "text/csv"
+            )
+        with col2:
+            st.download_button(
+                "📥 Poori History Download",
+                df.to_csv(index=False),
+                "attendance_full.csv",
+                "text/csv"
+            )
+
+        if st.button("🗑️ Saari History Clear"):
+            st.session_state.attendance = []
+            save_json(ATTENDANCE_FILE, [])
             st.rerun()
