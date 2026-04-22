@@ -135,4 +135,4 @@ with tab1:
 
             # Map
             m = folium.Map(location=[lat, lon], zoom_start=14)
-            folium.Marker(
+            folium.Marker()
